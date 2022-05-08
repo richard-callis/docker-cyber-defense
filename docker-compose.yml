@@ -29,8 +29,10 @@ services:
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ES_JAVA_OPTS: "-Xmx2g -Xms2g"
       discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.audit.enabled: "false"
     networks:
       - bridge
     labels:
@@ -43,14 +45,11 @@ services:
     container_name: "logstash"
     restart: unless-stopped
     volumes:
-      - ./logstash/:/logstash_dir
-    command: logstash -f /logstash_dir/logstash.conf
+      - logstash_pipeline:/usr/share/logstash/pipeline
     depends_on:
       - elasticsearch
     ports:
       - "9600:9600"
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
     networks:
       - bridge
     labels:
@@ -67,7 +66,7 @@ services:
     volumes:
       - elastic_data:/usr/share/elasticsearch/data
     environment:
-      ELASTICSEARCH_URL=http://elasticsearch:9200
+      ELASTICSEARCH_URL: https://10.101.36.36:9200
     depends_on:
       - elasticsearch
     networks:
@@ -79,6 +78,7 @@ services:
 
 volumes:
    elastic_data: {}
+   logstash_pipeline: {}
 
 networks:
    bridge:
