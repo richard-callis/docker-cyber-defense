@@ -1,0 +1,131 @@
+﻿#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import requests
+import sys
+import json
+import time
+from thehive4py.api import TheHiveApi
+from thehive4py.models import Case, CaseTask, CustomFieldHelper
+from thehive4py.query import *
+
+# this is the IP address and API Key that is needed to interact with theHive
+api = TheHiveApi('https://XX.XX.XX.XX','XXXXXXXXXXXXXXXXXXXXXXX', None, {}, False)
+
+
+# standardized cases - Use this area to declare all standard cases and tailor each one
+'''
+
+cases need to have at minimum a title, and a description to be added to the system all 
+other fields have defaults in the system and you can specify them individually
+--tlp (default is 2) choices are (1-White, 2-Green, 3-Amber, 4-Red)
+--pap (default is 2) choices are (1-White, 2-Green, 3-Amber, 4-Red) 
+--severity (default is 2) choices are (1-Low, 2-Medium, 3-High, 4-Critical)
+
+'''
+sec_pull = Case(title='Weekly SEC Pull',
+		description='This is an automated task, which requires the user to pull the SEC from the scheduled aircraft and injest the data into the weapon-system. USER-NOTES: please specify which SEC and which Tail Number were pulled under Additional Information',
+		tlp=1,
+		pap=1
+	)
+
+msn_plans = Case(title='msn_plans',
+		description='Go get off your butt and check for CDs over at 419',
+		tlp=1,
+		pap=1
+	)
+
+capre_pull = Case(title='Weekly Capre Pull',
+		description='This is an automated task, which requires the user to pull the CAPRE from the scheduled aircraft and injest the data into the weapon-system. USER-NOTES: please specify which CAPRE and which Tail Number were pulled under Additional Information',
+                tlp=1,
+                pap=1
+		)
+
+#pcmcia_cards = Case(title='pcncia_cards',
+#		description='This is an automated task, which requires the user to do XXXXXX',
+#               tlp=1,
+#                pap=1
+#		)
+
+weekly_rules = Case(title='weekly_rules',
+		description='Weekly update for Suricata rules',
+                tlp=1,
+                pap=1
+		)
+
+comm_nav_check = Case(title='comm_nav_check',
+		description='Check with Mr Shemer for updated comm nav disks',
+                tlp=1,
+                pap=1
+		)
+
+
+# cases in timebound schedules
+# if a case hasn't been assigned to a below array, it will not be processed
+week_tasks = [sec_pull, msn_plans, capre_pull, pcncia_cards, weekly_rules]
+month_tasks = [comm_nav_check]
+
+
+# function to create the case using the API and submitting the prepackaged Case as an argument
+def create_case(arg):
+	print(arg)
+
+	print('Create Case')
+	print('---------------------------')
+	id = None
+	response = api.create_case(arg)
+	if response.status_code == requests.codes.ok:
+		print(json.dumps(response.json(), indent=4, sort_keys=True))
+		print('')
+	else:
+		print('ko: {}/{}'.format(response.status_code, response.text))
+
+def delete_case(id):
+	print('Delete Case')
+	print('--------------------------')
+
+	response = api.delete_case(id)
+	if response/status_code == requests.codes.ok:
+		print('Case ID '+id+' deleted successfully')
+		print('')
+	else:
+		print('ko: {}/{}'.format(response.status_code, response.text))
+
+def search(query):
+        response = api.find_cases(query=query)
+        if response.status_code == 200:
+                print(json.dumps(response.json(),indent=4,sort_keys=True))
+                print('')
+                return response.json()
+        else:
+             	print('ko: {}/{}'.format(response.status_code, response.text))
+
+# main function to direct flow of the script
+def main(request):
+	print(request)
+	if request[1] == 'weekly':
+		for item in week_tasks:
+			create_case(item)
+
+	elif request[1] == 'monthly':
+		for item in month_tasks:
+			create_case(item)
+			print(item)
+
+	# this code will delete all open cases that were opened erroneously by the service account
+	elif request[1] == 'delete':
+		erroneous = search(And(Eq('owner','service@us.af.mil'),Eq('status','Open')))
+
+		for i in range(0,len(erroneous)):
+		        api.delete_case(erroneous[i]['caseId'])
+
+	else:
+		exit() # need to code the creation creation of adhoc cases ***delete this exit() once the code is implemented ***
+			#create_case (_)
+
+# script is required to have an argument called from the command line
+if len(sys.argv) != 0:
+	main(sys.argv)
+
+else:
+	print("No Argument was passed to the script, please enter one!")
+
