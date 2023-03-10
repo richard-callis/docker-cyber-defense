@@ -1,3 +1,3 @@
-[assessor@mip06 ~]$ curl -POST -u elastic:$PASSWORD "https://XX.XX.XX.XX:9200/_sql?format=csv" --insecure -H 'Content-Type: application/json' -d'
+$ curl -POST -u elastic:$PASSWORD "https://XX.XX.XX.XX:9200/_sql?format=csv" --insecure -H 'Content-Type: application/json' -d'
 {  "query": "\n  SELECT rule.id,event.kind FROM \"filebeat-suricata\" where \"destination.ip\" in ('\''XX.XX.XX.XX'\'','\''XX.XX.XX.XX'\'', '\''XX.XX.XX.XX'\'', '\''XX.XX.XX.XX'\'', '\''XX.XX.XX.XX'\'') and event.created > NOW() - interval 50 hours \n  "}'
 
