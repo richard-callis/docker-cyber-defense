@@ -12,8 +12,10 @@ def lab330(the_data):
     the_file, the_search = the_data
     c = Counter()
     if os.path.isfile(path+the_file)=True:
+        indicator_of_compromise = set()
         for eachline in open(path+the_file,'r').readlines():            
             the_client, the_dns = re.findall(r'client (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).+query: (\w\-\.]+)', eachline)
+            if the_dns = the_search: print(the_client)
 
     pass
 
