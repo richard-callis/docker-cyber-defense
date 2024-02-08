@@ -1,0 +1,26 @@
+import re
+import json
+
+## This function allows you export your dictionary to a file for persistence
+def export_dict_to_file(dict, path, name):
+    with open(path+name, 'w') as convert_file:
+        convert_file.write(json.dumps(details))
+
+## This function imports data from a flat file to a dictionary
+def import_dict_from_file(dict,path,name):
+    with open(path+file) as json_file:
+         global dict = json.load(json_file)
+
+
+from collections import Counter
+c = Counter()
+for eachline in open("query.log":
+    c.update(re.findall(r"client .*?query: (\s+) IN", eachline))
+
+
+# 
+# details = {'Name': "Bob", 
+#		'Age' :28} 
+#
+# with open('convert.txt', 'w') as convert_file: 
+# 	convert_file.write(json.dumps(details))
