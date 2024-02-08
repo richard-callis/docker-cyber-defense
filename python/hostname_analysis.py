@@ -7,7 +7,9 @@ def lab330(the_data):
     #Open specified file from /home/student/Public/log/dnslogs
     #Retrieve all the IP addresses from the log specified in the_data
     #Pass that list to sorted() and return it
-    for eachline in open(,'r'):
+
+    for eachline in open("query.log":
+        c.update(re.findall(r"client .*?query: (\s+) IN", eachline))
       
     pass
 
